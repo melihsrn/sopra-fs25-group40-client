@@ -20,9 +20,9 @@ const columns: TableProps<User>["columns"] = [
     key: "username",
   },
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
   },
   {
     title: "Id",
@@ -35,20 +35,49 @@ const Dashboard: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [users, setUsers] = useState<User[] | null>(null);
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
-  const {
-    // value: token, // is commented out because we dont need to know the token value for logout
-    // set: setToken, // is commented out because we dont need to set or update the token value
-    clear: clearToken, // all we need in this scenario is a method to clear the token
-  } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
 
-  const handleLogout = (): void => {
-    // Clear token using the returned function 'clear' from the hook
-    clearToken();
-    router.push("/login");
+  const {
+    value: user_id, 
+  } = useLocalStorage<string>("user_id", "");
+
+  // check if user is logged-in!
+  useEffect(() => {  
+    const checkLogged = async () => {
+      const token = localStorage.getItem("token");
+      // If token doesn't exist or is null, redirect to login
+      if (!token || token === "null") {
+        router.push("/login");
+      }
+    };
+    
+    // Run check immediately
+    checkLogged();
+  
+    // Set interval to keep checking
+    const checkTokenInterval = setInterval(() => {
+      checkLogged();
+    }, 5000); // Check every 5 seconds
+  
+    return () => clearInterval(checkTokenInterval); // Cleanup on unmount
+  }, [router]);
+  
+  const handleLogout = async () => {
+    try {
+      // Make a DELETE request to the logout endpoint
+      await apiService.delete(`/users/logout/${user_id}`);
+  
+      // Clear the token from local storage or any other relevant data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+  
+      // Redirect the user to the login page
+      router.push("/login");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("An error occurred while logging out.");
+    }
   };
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -68,10 +97,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchUsers();
-  }, [apiService]); // dependency apiService does not re-trigger the useEffect on every render because the hook uses memoization (check useApi.tsx in the hooks).
-  // if the dependency array is left empty, the useEffect will trigger exactly once
-  // if the dependency array is left away, the useEffect will run on every state change. Since we do a state change to users in the useEffect, this results in an infinite loop.
-  // read more here: https://react.dev/reference/react/useEffect#specifying-reactive-dependencies
+  }, [apiService]); 
 
   return (
     <div className="card-container">

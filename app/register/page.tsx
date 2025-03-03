@@ -13,19 +13,14 @@ interface FormFieldProps {
   value: string;
 }
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
+
   const {
-    // value: token, // is commented out because we do not need the token value
-    set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
-    // clear: clearToken, // is commented out because we do not need to clear the token when logging in
-  } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
-  // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
+    set: setToken, 
+  } = useLocalStorage<string>("token", "");
 
   const {
     set: setId, 
@@ -35,10 +30,10 @@ const Login: React.FC = () => {
     set: setStatus, 
   } = useLocalStorage<string>("userStatus", "");
 
-  const handleLogin = async (values: FormFieldProps) => {
+  const handleRegister = async (values: FormFieldProps) => {
     try {
       // Call the API service and let it handle JSON serialization and error handling
-      const response = await apiService.post<User>("/login", values);
+      const response = await apiService.post<User>("/register", values);
 
       // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
       if (response.token) {
@@ -55,9 +50,10 @@ const Login: React.FC = () => {
       router.push("/users");
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
+        console.error("Registration error: ", error);
+        alert(`Something went wrong during the registration:\n${error.message}`);
       } else {
-        console.error("An unknown error occurred during login.");
+        console.error("An unknown error occurred during registration.");
       }
     }
   };
@@ -66,12 +62,27 @@ const Login: React.FC = () => {
     <div className="login-container">
       <Form
         form={form}
-        name="login"
+        name="register"
         size="large"
         variant="outlined"
-        onFinish={handleLogin}
+        onFinish={handleRegister}
         layout="vertical"
       >
+        <Form.Item
+          name="name"
+          label="Name"
+          rules={[{ required: true, message: "Please input your name!" }]}
+        >
+          <Input placeholder="Enter name" />
+        </Form.Item>
+        <Form.Item
+          name="birthday"
+          label="Birthday"
+        >
+          <Input
+            type="date"
+          /> 
+        </Form.Item>
         <Form.Item
           name="username"
           label="Username"
@@ -87,19 +98,13 @@ const Login: React.FC = () => {
           <Input type="password" placeholder="Enter password" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-button">
-            Login
+          <Button type="primary" htmlType="submit" className="register-button">
+            Register
           </Button>
-        </Form.Item>
-        {/* Register option styled as an underlined link */}
-        <Form.Item>
-          <a href="/register" className="register-link">
-            Do not have an account? Register here
-          </a>
         </Form.Item>
       </Form>
     </div>
   );
 };
 
-export default Login;
+export default Register;

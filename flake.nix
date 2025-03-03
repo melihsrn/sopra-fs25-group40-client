@@ -31,6 +31,7 @@
             git
             deno
             watchman
+            docker
           ]
           ++ lib.optionals stdenv.isDarwin [
             xcodes
@@ -46,10 +47,11 @@
             export HOST_PROJECT_PATH="$(pwd)"
             export COMPOSE_PROJECT_NAME=sopra-fs25-template-client
             
-            export PATH="${pkgsStable.nodejs_22}/bin:$PATH"
+            export PATH="${pkgs.nodejs}/bin:$PATH"
             export PATH="${pkgs.git}/bin:$PATH"
             export PATH="${pkgs.deno}/bin:$PATH"
             export PATH="${pkgs.watchman}/bin:$PATH"
+            export PATH="${pkgs.docker}/bin:$PATH"
             
             XCODE_VERSION_OLD="15.3"
             XCODE_VERSION="16.2"

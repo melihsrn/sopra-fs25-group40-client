@@ -136,3 +136,4 @@ yarn-error.log*
 # misc
 .DS_Store
 *.pem
+sopra-fs25-serin-melih-server.json

@@ -1,4 +1,4 @@
-import process from "process";
+//import process from "node:process";
 import { isProduction } from "@/utils/environment";
 /**
  * Returns the API base URL based on the current environment.
@@ -6,6 +6,7 @@ import { isProduction } from "@/utils/environment";
  * In development, it returns "http://localhost:8080".
  */
 export function getApiDomain(): string {
+  process.env.NEXT_PUBLIC_PROD_API_URL = "https://sopra-fs25-group40-server.oa.r.appspot.com/"
   const prodUrl = process.env.NEXT_PUBLIC_PROD_API_URL ||
     "http://localhost:8080"; // TODO: update with your production URL as needed.
   const devUrl = "http://localhost:8080";
