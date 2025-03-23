@@ -1,0 +1,171 @@
+.flashcard-carousel-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    position: relative;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Each flashcard container */
+.flashcard-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+/* Actual flashcard - with flip animation */
+.flashcard {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+    cursor: pointer;
+}
+
+/* Flip effect */
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Front and back sides */
+.flashcard-front,
+.flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* Front side styling */
+.flashcard-front {
+    background: #fff;
+    color: #333;
+}
+
+/* Back side styling (answer side) */
+.flashcard-back {
+    background: #f0f4f8;
+    color: #333;
+    transform: rotateY(180deg);
+}
+
+/* Header with edit button */
+.flashcard-header {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* Footer with delete button */
+.flashcard-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+}
+
+/* Delete button */
+.delete-button {
+    font-size: 18px;
+    color: #ff4000;
+}
+
+/* Edit button */
+.edit-button {
+    font-size: 18px;
+    color: #007bff;
+}
+
+/* Content area for description, date, image */
+.flashcard-content {
+    text-align: center;
+}
+
+.flashcard-content p {
+    margin: 4px 0;
+    font-size: 16px;
+}
+
+/* Image inside the flashcard */
+.flashcard-content img {
+    max-width: 100%;
+    max-height: 120px;
+    margin-top: 8px;
+    border-radius: 8px;
+}
+
+/* Optional: Carousel navigation arrows (custom if needed) */
+.slick-prev, .slick-next {
+    z-index: 10;
+    color: #007bff;
+    font-size: 20px;
+}
+
+.slick-prev:hover, .slick-next:hover {
+    color: #0056b3;
+}
+
+.flashcard-header {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    align-items: center;
+    padding: 10px 10px;
+  }
+  
+  .view-selector {
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .view-option {
+    cursor: pointer;
+    color: black; /* Default color */
+    transition: color 0.3s, text-decoration 0.3s;
+  }
+  
+  .view-option.active {
+    color: #007bff; /* Active (selected) color */
+    /* text-decoration: underline; Active underline */
+  }
+  
+  .view-option:hover {
+    color: #007bff; /* Hover effect */
+  }
+  
+  
+
+/* On mobile, make sure spacing works */
+@media (max-width: 768px) {
+    .flashcard-carousel-container {
+        padding: 10px;
+        box-shadow: none;
+        background-color: transparent;
+    }
+    
+    .flashcard-wrapper {
+        height: 250px;
+    }
+
+    .flashcard-content p {
+        font-size: 14px;
+    }
+}

@@ -52,7 +52,7 @@ const Login: React.FC = () => {
       }
 
       // Navigate to the user overview
-      router.push("/users");
+      router.push("/decks");
     } catch (error) {
       if (error instanceof Error) {
         alert(`Something went wrong during the login:\n${error.message}`);

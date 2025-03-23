@@ -127,4 +127,26 @@ export class ApiService {
       "An error occurred while deleting the data.\n",
     );
   }
+
+  public async uploadImage(endpoint: string, file: File): Promise<string> {
+    const url = `${this.baseURL}${endpoint}`;
+
+    const formData = new FormData();
+    formData.append("file", file);  // Append the file to FormData
+
+    const res = await fetch(url, {
+        method: "POST",
+        body: formData,  // FormData automatically sets the correct content type
+    });
+
+    if (!res.ok) {
+        throw new Error("An error occurred while uploading the image.");
+    }
+
+    return res.text();  // Assuming the server sends the file URL or response as text
+}
+
+
+
+
 }

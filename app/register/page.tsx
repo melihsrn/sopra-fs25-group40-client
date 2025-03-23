@@ -47,7 +47,7 @@ const Register: React.FC = () => {
       }
 
       // Navigate to the user overview
-      router.push("/users");
+      router.push("/decks");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Registration error: ", error);
@@ -101,6 +101,11 @@ const Register: React.FC = () => {
           <Button type="primary" htmlType="submit" className="register-button">
             Register
           </Button>
+        </Form.Item>
+        <Form.Item>
+          <a href="/login" className="login-link">
+            Go Back to Login
+          </a>
         </Form.Item>
       </Form>
     </div>
