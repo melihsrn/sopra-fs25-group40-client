@@ -81,12 +81,8 @@ const DecksPage: React.FC = () => {
               });
               
 
-              // if (Number(payload.data.receiverId) === userIdAsNumber) {
-                setQuizInvites({ fromUserId,toUserId, quizId:quizId });
-                setModalVisible(true);
-              // } else {
-              //   console.log("Quiz invitation received, but not for this user.");
-              // }
+              setQuizInvites({ fromUserId,toUserId, quizId:quizId });
+              setModalVisible(true);
       
             } else if (type === "response") {
               // 📌 Handle quiz response
