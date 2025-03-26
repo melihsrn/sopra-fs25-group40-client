@@ -1,12 +1,15 @@
 import { Deck } from "./deck";
+import { Score } from "./score";
 
 export interface User {
-  id: string | null;
+  id: string;
   name: string | null;
   creationDate: Date;
-  username: string | null;
+  username: string;
   token: string | null;
-  status: string | null;
+  status: string;
   birthday: Date | null;
-  decks: Deck | null; // list of all flashcards for the user
+  decks: Deck[] | null;
+  scores: Score[] | null;
+  fcmToken: string | null;
 }

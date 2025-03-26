@@ -34,7 +34,10 @@ const AddDeckPage: React.FC = () => {
   const handleAddDeck = async (values: DeckFormValues) => {
     try {
 
-
+      if (!values.isPublic || values.isPublic === null){
+        values.isPublic = false;
+      }
+  
       const deckDTO = {
         title: values.title,
         deckCategory: values.deckCategory,

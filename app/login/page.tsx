@@ -28,6 +28,10 @@ const Login: React.FC = () => {
   // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
 
   const {
+    set: setFcmToken, 
+  } = useLocalStorage<string>("fcmToken", "");
+  
+  const {
     set: setId, 
   } = useLocalStorage<string>("user_id", "");
 
@@ -49,6 +53,9 @@ const Login: React.FC = () => {
       }
       if (response.status) {
         setStatus(response.status);
+      }
+      if (response.fcmToken) {
+        setFcmToken(response.fcmToken);
       }
 
       // Navigate to the user overview

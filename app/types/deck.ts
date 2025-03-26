@@ -1,4 +1,5 @@
 import { Flashcard } from "./flashcard";
+import { Quiz } from "./quiz";
 import { User } from "./user";
 
 export interface Deck {
@@ -8,5 +9,6 @@ export interface Deck {
     deckCategory: string;
     isPublic: boolean ;
     user: User;
+    quiz: Quiz;
   } 
   

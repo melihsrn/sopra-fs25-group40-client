@@ -23,6 +23,10 @@ const Register: React.FC = () => {
   } = useLocalStorage<string>("token", "");
 
   const {
+    set: setFcmToken, 
+  } = useLocalStorage<string>("fcmToken", "");
+
+  const {
     set: setId, 
   } = useLocalStorage<string>("user_id", "");
 
@@ -44,6 +48,9 @@ const Register: React.FC = () => {
       }
       if (response.status) {
         setStatus(response.status);
+      }
+      if (response.fcmToken) {
+        setFcmToken(response.fcmToken);
       }
 
       // Navigate to the user overview

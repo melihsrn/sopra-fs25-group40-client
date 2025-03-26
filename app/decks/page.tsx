@@ -4,10 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { Deck } from "@/types/deck";
-import { Button, Carousel } from "antd";
+import { Modal, Button, Carousel } from "antd";
 import { EditOutlined,DeleteOutlined } from "@ant-design/icons";
 import "@/styles/FlashcardCarousel.css"; // Optional: for custom styles
-
+import { requestNotificationPermission } from "@/lib/firebase";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "@/lib/firebase";
+import { notification } from "antd";
 
 const DecksPage: React.FC = () => {
     const router = useRouter();
@@ -16,6 +19,121 @@ const DecksPage: React.FC = () => {
     const [view, setView] = useState<"private" | "public">("private");
 
     const [userIdAsNumber, setUserIdAsNumber] = useState<number | null>(null);
+
+    const [fcmToken, setFcmToken] = useState<string | null>(null);
+
+    const [quizInvites, setQuizInvites] = useState<{ fromUserId: string; toUserId: string; quizId: string } | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    useEffect(() => {
+        const registerServiceWorker = async () => {
+          if ("serviceWorker" in navigator) {
+            try {
+              const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+              console.log("Service Worker registered:", registration);
+            } catch (error) {
+              console.error("Service Worker registration failed:", error);
+            }
+          }
+        };
+
+        const fetchAndStoreFcmToken = async () => {
+          try {
+            const existingToken = localStorage.getItem("fcmToken");
+            if (existingToken) {
+              console.log("FCM token already exists:", existingToken);
+              setFcmToken(existingToken);
+              return; // Use the existing token
+            }
+
+            const newToken = await requestNotificationPermission();
+            if (newToken) {
+              setFcmToken(newToken);
+              localStorage.setItem("fcmToken", newToken);
+              await apiService.put(`/users/${userIdAsNumber}`, { fcmToken: newToken });
+            }
+          } catch (error) {
+            console.error("Error setting FCM token:", error);
+          }
+        };
+        
+        registerServiceWorker();
+        fetchAndStoreFcmToken();
+      }, [userIdAsNumber]); // Re-run if user ID changes
+    
+      useEffect(() => {
+        if (!messaging) return;
+    
+        // 🔴 3️⃣ Listen for foreground FCM messages
+        const unsubscribe = onMessage(messaging, (payload) => {
+          console.log("New FCM message received:", payload);
+      
+          if (payload.notification && payload.data) {
+            const { title, body } = payload.notification;
+            const { type, quizId, fromUserId, toUserId, accepted } = payload.data;
+      
+            if (type === "invitation") {
+              // 📌 Handle quiz invitation
+              notification.info({
+                message: title,
+                description: body,
+                placement: "topRight",
+              });
+              
+
+              // if (Number(payload.data.receiverId) === userIdAsNumber) {
+                setQuizInvites({ fromUserId,toUserId, quizId:quizId });
+                setModalVisible(true);
+              // } else {
+              //   console.log("Quiz invitation received, but not for this user.");
+              // }
+      
+            } else if (type === "response") {
+              // 📌 Handle quiz response
+              const isAccepted = accepted === "true";
+      
+              notification.info({
+                message: isAccepted ? "Quiz Accepted!" : "Invitation Declined",
+                description: isAccepted
+                  ? "Your quiz invitation has been accepted!"
+                  : "Your quiz invitation was declined.",
+                placement: "topRight",
+              });
+      
+              if (isAccepted) {
+                // 🚀 Redirect sender to the quiz page
+                router.push(`/quiz/${quizId}`);
+              }
+            }
+          }
+        });
+    
+        return () => unsubscribe();
+      }, []);
+
+      const handleAccept = async () => {
+        console.log("Accepted quiz:", quizInvites?.quizId);
+        const response = {
+          ...quizInvites,
+          response:true
+        }
+        await apiService.put(`/quiz/respond`,response);
+        setModalVisible(false);
+        setQuizInvites(null);
+        router.push(`/quiz/${quizInvites?.quizId}`);
+      };
+    
+      const handleDecline = async () => {
+        console.log("Declined quiz:", quizInvites?.quizId);
+        const response = {
+          ...quizInvites,
+          response:false
+        }
+        await apiService.put(`/quiz/respond`,response);
+        setModalVisible(false);
+        setQuizInvites(null);
+      };
+    
 
     useEffect(() => {
         const storedUserId = localStorage.getItem("user_id");
@@ -95,6 +213,22 @@ const DecksPage: React.FC = () => {
 
       return (
         <div className="flashcard-carousel-container">
+              <Modal
+                title="Quiz Invitation"
+                open={modalVisible}
+                onCancel={handleDecline} // Clicking outside or on close button will decline
+                footer={[
+                  <Button key="decline" onClick={handleDecline}>
+                    Decline
+                  </Button>,
+                  <Button key="accept" type="primary" onClick={handleAccept}>
+                    Accept
+                  </Button>,
+                ]}
+              >
+                <p>User with ID <strong>{quizInvites?.fromUserId}</strong> invited you to a quiz!</p>
+              </Modal>
+
             <Button
             type="primary"
             style={{ marginBottom: "20px" }}
@@ -169,6 +303,9 @@ const DecksPage: React.FC = () => {
               </div>
             ))}
           </Carousel>
+          <Button onClick={() => router.push("/users")} type="primary" style={{ marginTop: "20px" }}>
+                  Start a Quiz
+          </Button>
           <Button onClick={handleLogout} type="primary" style={{ marginTop: "20px" }}>
                   Logout
           </Button>
