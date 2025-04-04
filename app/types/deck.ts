@@ -1,4 +1,5 @@
 import { Flashcard } from "./flashcard";
+import { Invitation } from "./invitation";
 import { Quiz } from "./quiz";
 import { User } from "./user";
 
@@ -10,5 +11,6 @@ export interface Deck {
     isPublic: boolean ;
     user: User;
     quiz: Quiz;
+    invitation: Invitation | null;
   } 
   

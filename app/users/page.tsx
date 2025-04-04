@@ -106,10 +106,9 @@ const UserLobbyPage: React.FC = () => {
             fromUserId: user_id,
             toUserId: selectedUser?.id,
             timeLimit:300,
-            isMultiple:true,
             decks:selectedUser.decks
         }
-        await apiService.post(`/quiz/invite`,invitation);
+        await apiService.post(`/quiz/invitation`,invitation);
         console.log("Quiz invitation sent!");
         router.push("/decks");
     } catch (error) {

@@ -27,9 +27,9 @@ const Login: React.FC = () => {
   } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
   // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
 
-  const {
-    set: setFcmToken, 
-  } = useLocalStorage<string>("fcmToken", "");
+  // const {
+  //   set: setFcmToken, 
+  // } = useLocalStorage<string>("fcmToken", "");
   
   const {
     set: setId, 
@@ -54,9 +54,9 @@ const Login: React.FC = () => {
       if (response.status) {
         setStatus(response.status);
       }
-      if (response.fcmToken) {
-        setFcmToken(response.fcmToken);
-      }
+      // if (response.fcmToken) {
+      //   setFcmToken(response.fcmToken);
+      // }
 
       // Navigate to the user overview
       router.push("/decks");
