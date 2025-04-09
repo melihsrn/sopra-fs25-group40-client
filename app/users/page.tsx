@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Card, Table,Checkbox } from "antd";
+import { Button, Card, Table,Checkbox,Modal, Select } from "antd";
+const { Option } = Select;
 import type { TableProps } from "antd"; // antd component library allows imports of types
 import { Quiz } from "@/types/quiz";
+import { Deck } from "@/types/deck";
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
 
@@ -18,6 +20,10 @@ const UserLobbyPage: React.FC = () => {
   const apiService = useApi();
   const [users, setUsers] = useState<User[] | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [publicDecks, setPublicDecks] = useState<Deck[]>([]);
+  const [selectedDeckIds, setSelectedDeckIds] = useState<string[]>([]);
+  const [selectedTimeLimit, setSelectedTimeLimit] = useState<number>(2);
 
   const {
     value: user_id, 
@@ -88,36 +94,86 @@ const UserLobbyPage: React.FC = () => {
     };
 
     fetchUsers();
-  }, [apiService]); 
+  }, [apiService]);
+  
+    useEffect(() => {
+      const fetchPublicDecks = async () => {
+        try {
+          const decks = await apiService.get<Deck[]>("/decks/public");
+          setPublicDecks(decks);
+        } catch (err) {
+          console.error("Error fetching public decks", err);
+        }
+      };
+    
+      fetchPublicDecks();
+    }, [apiService]);
+  
 
   const handleSelectUser = (user: User) => {
         setSelectedUser(
             selectedUser && selectedUser.id === user.id ? null : user
         );
     };
-
-  const handleSendInvitation = async () => {
-    if (!selectedUser?.id) return;
-
-    // You will need to call the backend endpoint for sending invitations
-    try {
-        console.log("userId"+selectedUser?.id);
-        const invitation = {
-            fromUserId: user_id,
-            toUserId: selectedUser?.id,
-            timeLimit:300,
-            decks:selectedUser.decks
-        }
-        await apiService.post(`/quiz/invitation`,invitation);
+  
+    const handleSendInvitation = async () => {
+      if (!selectedUser?.id) return;
+    
+      const invitation = {
+        fromUserId: user_id,
+        toUserId: selectedUser.id,
+        timeLimit: selectedTimeLimit * 60, // convert mins to seconds
+        deckIds: selectedDeckIds,
+      };
+    
+      try {
+        await apiService.post(`/quiz/invitation`, invitation);
         console.log("Quiz invitation sent!");
-        router.push("/decks");
-    } catch (error) {
-        console.error("Failed to send quiz invitation");
-    }
-};
+        setIsModalVisible(false);
+        router.push("/decks"); // Optional
+      } catch (error) {
+        console.error("Failed to send quiz invitation", error);
+      }
+    };
 
   return (
     <div className="card-container">
+      <Modal
+        title={`Invite ${selectedUser?.username}`}
+        open={isModalVisible}
+        onOk={handleSendInvitation}
+        onCancel={() => setIsModalVisible(false)}
+        okText="Send"
+      >
+        <p>Select Decks:</p>
+        <Select
+          mode="multiple"
+          style={{ width: "100%" }}
+          placeholder="Select decks"
+          onChange={(value) => setSelectedDeckIds(value)}
+          value={selectedDeckIds}
+        >
+          {publicDecks.map((deck) => (
+            <Option key={deck.id} value={deck.id}>
+              {deck.title}
+            </Option>
+          ))}
+        </Select>
+
+        <p style={{ marginTop: "1rem" }}>Select Time Limit:</p>
+        <Select
+          style={{ width: "100%" }}
+          onChange={(value) => setSelectedTimeLimit(value)}
+          value={selectedTimeLimit}
+        >
+          {[2, 3, 4, 5].map((min) => (
+            <Option key={min} value={min}>
+              {min} minutes
+            </Option>
+          ))}
+        </Select>
+      </Modal>
+
       <Card
         title="Get all users from secure endpoint:"
         loading={!users}
@@ -139,13 +195,14 @@ const UserLobbyPage: React.FC = () => {
         )}
 
         <Button
-                type="primary"
-                disabled={!selectedUser}
-                onClick={handleSendInvitation}
-                style={{ marginTop: "20px" }}
-            >
-                Send Invitation
+            type="primary"
+            disabled={!selectedUser}
+            onClick={() => setIsModalVisible(true)}
+            style={{ marginTop: "20px" }}
+          >
+            Send Invitation
         </Button>
+
       </Card>
     </div>
   );
