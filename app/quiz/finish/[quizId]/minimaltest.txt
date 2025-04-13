@@ -1,0 +1,78 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+export const dynamic = "force-dynamic"; // avoid SSR
+
+const MinimalPage: React.FC = () => {
+    const router = useRouter();
+    const [quizId, setQuizId] = useState("");
+    const [data, setData] = useState<any>(null);
+    const [errorMsg, setErrorMsg] = useState("");
+
+    useEffect(() => {
+        // parse quiz id from path
+        const parts = window.location.pathname.split("/");
+        if (parts.length >= 3) {
+            setQuizId(parts[2]);
+        }
+    }, []);
+
+    async function fetchData() {
+        try {
+            // Example: userId=1
+            const url = `http://localhost:8080/quiz/${quizId}/currentQuestion?userId=1`;
+            console.log("Fetching:", url);
+            const res = await fetch(url);
+
+            // If not OK, read the body text too
+            if (!res.ok) {
+                const bodyText = await res.text(); // read error response body as text
+                // Or if the server returns JSON for errors, you can do:
+                // const errorJson = await res.json();
+                throw new Error(
+                    `Server responded with ${res.status}\n` + bodyText
+                );
+            }
+
+            const json = await res.json();
+            setData(json);
+            setErrorMsg("");
+        } catch (err) {
+            console.error("Fetch error:", err);
+            setErrorMsg(String(err));
+        }
+    }
+
+    useEffect(() => {
+        if (quizId) {
+            fetchData();
+        }
+    }, [quizId]);
+
+    return (
+        <div style={{ padding: 20 }}>
+            <h1>Minimal Page for Debugging</h1>
+            <p>Quiz ID: {quizId}</p>
+            {errorMsg && (
+                <div style={{ color: "red", whiteSpace: "pre-wrap" }}>
+                    <strong>Error:</strong> {errorMsg}
+                </div>
+            )}
+            {data ? (
+                <div>
+                    <h2>Success:</h2>
+                    <pre>{JSON.stringify(data, null, 2)}</pre>
+                </div>
+            ) : (
+                <p>No data loaded.</p>
+            )}
+            <button onClick={() => router.push("/decks")}>
+                Back to Decks
+            </button>
+        </div>
+    );
+};
+
+export default MinimalPage;

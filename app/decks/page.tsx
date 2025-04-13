@@ -299,10 +299,13 @@ const DecksPage: React.FC = () => {
               </div>
             ))}
           </Carousel>
-          <Button onClick={() => router.push("/users")} type="primary" style={{ marginTop: "20px" }}>
-                  Start a Quiz
-          </Button>
-          <Button onClick={handleLogout} type="primary" style={{ marginTop: "20px" }}>
+            <Button
+                onClick={() => router.push("/quiz/start")}
+                type="primary"
+                style={{ marginTop: "20px" }}>
+                Start a Quiz
+            </Button>
+            <Button onClick={handleLogout} type="primary" style={{ marginTop: "20px" }}>
                   Logout
           </Button>
         </div>
