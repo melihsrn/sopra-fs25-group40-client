@@ -1,4 +1,5 @@
 import { Deck } from "./deck";
+import { Invitation } from "./invitation";
 import { Score } from "./score";
 
 export interface User {
@@ -11,5 +12,7 @@ export interface User {
   birthday: Date | null;
   decks: Deck[] | null;
   scores: Score[] | null;
-  fcmToken: string | null;
+  invitationsSent: Invitation[];
+  invitationsReceived: Invitation[];
+  // fcmToken: string | null;
 }
