@@ -157,8 +157,13 @@ const QuizSessionPage: React.FC = () => {
             totalSecondsRef.current !== null &&
             elapsedSec >= totalSecondsRef.current;
 
+        if (timeUp && !iAmFinished) {
+            // tell backend we’re done because of time-out
+            sendTimeoutAnswer().then(() => setIAmFinished(true));
+        }
+
         if ((quizFinishedForAll || timeUp) && quizId) {
-            router.push(`/finish/${quizId}`);
+            router.push(`/quiz/finish/${quizId}`);
         }
     }, [quizFinishedForAll, elapsedSec, quizId, router]);
 
@@ -221,20 +226,6 @@ const QuizSessionPage: React.FC = () => {
         }).catch(() => {});                // ignore network errors for timeout call
     }
 
-    useEffect(() => {
-        const timeUp =
-            totalSecondsRef.current !== null &&
-            elapsedSec >= totalSecondsRef.current;
-
-        if (timeUp && !iAmFinished) {
-            // tell backend we’re done because of time-out
-            sendTimeoutAnswer().then(() => setIAmFinished(true));
-        }
-
-        if ((quizFinishedForAll || timeUp) && quizId) {
-            router.push(`/finish/${quizId}`);
-        }
-    }, [elapsedSec, quizFinishedForAll, quizId, iAmFinished]);
 
 
     return (
