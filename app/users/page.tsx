@@ -147,18 +147,18 @@ const UserLobbyPage: React.FC = () => {
       >
         <p>Select Decks:</p>
         <Select
-          mode="multiple"
-          style={{ width: "100%" }}
-          placeholder="Select decks"
-          onChange={(value) => setSelectedDeckIds(value)}
-          value={selectedDeckIds}
-        >
-          {publicDecks.map((deck) => (
-            <Option key={deck.id} value={deck.id}>
-              {deck.title}
-            </Option>
-          ))}
-        </Select>
+            mode="multiple"
+            style={{ width: "100%" }}
+            placeholder="Select decks"
+            value={selectedDeckIds}
+            onChange={setSelectedDeckIds}
+            options={publicDecks.map((deck) => ({
+              value: deck.id.toString(),
+              label: deck.title
+            }))}
+            optionFilterProp="label"   /* enables search filtering by title */
+            showSearch
+        />
 
         <p style={{ marginTop: "1rem" }}>Select Time Limit:</p>
         <Select
